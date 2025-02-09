@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap');
+
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+}
+
+p {
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+}
+
+td {
+    border: #000 1px solid;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.label {
+    border: 1px solid #000;
+}
+
+.barcode-text {
+
+    margin-block-start: -25px;
+
+}
+
+.barcode {
+    font-family: 'Libre Barcode 128';
+    font-size: 80px;
+    margin-block-start: 10px;
+    margin-block-end: 0px;
+}
