@@ -8,12 +8,17 @@
 </head>
 <body>
     <h1>Generator Etykiet GS1</h1>
-    <label>GTIN: <input type="text" id="gtin"></label><br>
-    <label>SSCC: <input type="text" id="sscc"></label><br>
-    <label>QUANTITY: <input type="text" id="quantity"></label><br>
-    <button onclick="generateLabel()">Generuj Etykietę</button>
-    <button onclick="exportPDF()">Pobierz PDF</button>
+    <div>
+        <label>GTIN:</label>
+        <input type="text" id="gtin">
+        <label>SSCC:</label>
+        <input type="text" id="sscc">
+        <label>QUANTITY:</label>
+        <input type="text" id="quantity">
+        <button onclick="generateLabel()">Generuj Etykietę</button>
+        <button onclick="exportPDF()">Pobierz PDF</button>
+        <script src="script.js"></script>
+    </div>
     <div id="labels"></div>
-    <script src="script.js"></script>
 </body>
 </html>
