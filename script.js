@@ -1,6 +1,7 @@
 function generateLabel() {
     const gtin = document.getElementById('gtin').value;
     const sscc = document.getElementById('sscc').value;
+    const quantity = document.getElementById('quantity').value;
     const labelDiv = document.createElement('table');
     labelDiv.classList.add('label');
     
