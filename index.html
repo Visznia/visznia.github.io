@@ -7,16 +7,20 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Generator Etykiet GS1</h1>
-    <div>
+    <div class="div-round-shadow">
+        <h1>Generator Etykiet GS1</h1>
+    </div>
+    <div class="div-round-shadow">
         <label>GTIN:</label>
         <input type="text" id="gtin">
         <label>SSCC:</label>
         <input type="text" id="sscc">
         <label>QUANTITY:</label>
         <input type="text" id="quantity">
-        <button onclick="generateLabel()">Generuj Etykietę</button>
-        <button onclick="exportPDF()">Pobierz PDF</button>
+        <div>
+            <button onclick="generateLabel()">Generuj Etykietę</button>
+            <button onclick="exportPDF()">Pobierz PDF</button>
+        </div>
         <script src="script.js"></script>
     </div>
     <div id="labels"></div>
