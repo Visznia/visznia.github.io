@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap');
 
 body {
-    background-image: linear-gradient(0deg, #b6fdff, #d9f8ff);
+    background-image: linear-gradient(90deg, #b6fdff, #d9f8ff);
     font-family: Arial, sans-serif;
     font-size: 18px;
     padding: 20px;
@@ -82,6 +82,7 @@ input {
 .label {
     border: 1px solid #000;
     margin: 5%;
+    background-color: white;
 }
 
 .barcode-text {
@@ -100,5 +101,13 @@ input {
 .barcode-cell {
 
     border: none;
+    
+}
+
+.company-name {
+
+    font-size: 32px;
+    padding-top: 24px;
+    padding-bottom: 24px;
     
 }
