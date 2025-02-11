@@ -5,7 +5,6 @@ function generateLabel() {
     var quantity = document.getElementById('quantity').value;
     var batch = document.getElementById('batch').value;
     const labelDiv = document.createElement('div');
-    labelDiv.classList.add('div-round-shadow-centered');
     const labelTable = document.createElement('table');
     labelTable.classList.add('label');
     labelTable.id = "capture";
@@ -106,11 +105,11 @@ const singleGenerator = document.getElementById('single-generator');
 singleGenerator.style.display = "none";
 const multiGenerator = document.getElementById('multi-generator');
 multiGenerator.style.display = "none";
-/* document.getElementById("download").addEventListener("click", function () {
+document.getElementById("download").addEventListener("click", function () {
     html2canvas(document.getElementById("capture")).then(canvas => {
         let link = document.createElement("a");
         link.href = canvas.toDataURL("image/png");
         link.download = "capture.png";
         link.click();
     });
-}); */
+});

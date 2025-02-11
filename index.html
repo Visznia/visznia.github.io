@@ -3,46 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generator Etykiet GS1</title>
+    <title>LOGISTICS LABEL GENERATOR</title>
     <link rel="stylesheet" href="styles.css">
     <script src="html2canvas.js"></script>
 </head>
 <body>
-    <div class="div-round-shadow">
-        <h1>Generator Etykiet GS1</h1>
+    <div class="div-round-shadow title-bar">
+        <h1>LOGISTICS LABEL GENERATOR</h1>
     </div>
-    <div class="div-round-shadow">
-        <div id="header">
-            <button onclick="toogleShowSingle()">Generate single label</button>
-            <button onclick="toogleShowMulti()">Generate multiple labels</button>
-        </div>
-    </div>
-    <div class="div-round-shadow">
-        <div id="single-generator">
-            <label>COMPANY NAME:</label>
-            <input type="text" id="company" value="JAS-FBG S.A.">
-            <label>GTIN:</label>
-            <input type="text" id="gtin" value="5900811773412">
-            <label>SSCC:</label>
-            <input type="text" id="sscc" value="34125900811773412">
-            <label>BATCH:</label>
-            <input type="text" id="batch" value="A650H">
-            <label>QUANTITY:</label>
-            <input type="text" id="quantity" value="128">
-            <div>
-                <button onclick="generateLabel()">Generuj Etykietę</button>
-                <button id="download">Pobierz</button>
+    <div class="main-holder">
+        <div class="tool-bar">    
+            <div class="div-round-shadow">
+                <div id="header">
+                    <button onclick="toogleShowSingle()">Single label</button>
+                    <button onclick="toogleShowMulti()">Multiple labels</button>
+                </div>
+            </div>
+            <div class="div-round-shadow">
+                <div id="single-generator">
+                    <label>COMPANY NAME:</label>
+                    <input type="text" id="company" value="TEST INC.">
+                    <label>GTIN:</label>
+                    <input type="text" id="gtin" value="5900811773412">
+                    <label>SSCC:</label>
+                    <input type="text" id="sscc" value="34125900811773412">
+                    <label>BATCH:</label>
+                    <input type="text" id="batch" value="A650H">
+                    <label>QUANTITY:</label>
+                    <input type="text" id="quantity" value="128">
+                    <div>
+                        <button onclick="generateLabel()">Generate</button>
+                        <button id="download">Download</button>
+                    </div>
+                </div>
+                <div id="multi-generator">
+                    <input type="text">
+                    <div>
+                        <button onclick="generateLabel()">Generate</button>
+                        <button id="download">Download</button>
+                    </div>
+                </div>
+                <script src="script.js"></script>
             </div>
         </div>
-        <div id="multi-generator">
-            <input type="text">
-            <div>
-                <button onclick="generateLabel()">Generuj Etykietę</button>
-                <button id="download">Pobierz</button>
-            </div>
+        <div id="labels" class="div-round-shadow">  
         </div>
-        <script src="script.js"></script>
-    </div>
-    <div id="labels"></div>
+    </div> 
 </body>
 </html>

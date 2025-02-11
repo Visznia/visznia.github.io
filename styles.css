@@ -35,12 +35,12 @@ td {
 }
 
 button {
-    width: 28%;
+    width: 70%;
     height: 80%;
     font-size: 18px;
     align-self: center;
     margin: 4px;
-    border-radius: 10px;
+    border-radius: 30px;
     padding-top: 8px;
     padding-bottom: 8px;
     border: 2px black solid;
@@ -53,19 +53,8 @@ button:hover{
     box-shadow: rgb(0, 0, 0) 0px 0px 15px 0px;
 }
 
-.div-round-shadow-centered {
-    background: #52796f;
-    display: flex;
-    flex-direction: column;
-    margin: auto;
-    width: 80%;
-    text-align: center;
-    box-shadow: rgb(0, 0, 0) 0px 0px 5px 0px;
-    padding-top: 35px;
-    padding-bottom: 35px;
-    border-radius: 20px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+.centered {
+
     align-items: center;
 }
 
@@ -73,15 +62,29 @@ button:hover{
     background: #52796f;
     display: flex;
     flex-direction: column;
-    margin: auto;
-    width: 80%;
+    width: 95%;
     text-align: center;
-    box-shadow: rgb(0, 0, 0) 0px 0px 5px 0px;
+    box-shadow: rgb(0, 0, 0) 0px 0px 15px 0px;
     padding-top: 35px;
     padding-bottom: 35px;
-    border-radius: 20px;
+    border-radius: 30px;
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+.tool-bar{
+    width: 40%;
+}
+
+.title-bar {
+
+    width: 100%;
+
+}
+
+.main-holder {
+    display: flex;
+    flex-direction: row;
 }
 
 label {
@@ -97,8 +100,8 @@ input {
     margin-top: 2px;
     margin-bottom: 15px;
     font-size: 18px;
-    padding-left: 10px;
-    border-radius: 8px;
+    padding-left: 20px;
+    border-radius: 30px;
     border: black 1px solid;
 }
 
@@ -134,4 +137,13 @@ input {
     padding-top: 24px;
     padding-bottom: 24px;
     
+}
+
+#labels {
+    align-items: center;
+}
+
+#header {
+    display: flex;
+    flex-direction: column;
 }
