@@ -36,6 +36,7 @@ td {
 
 button {
     width: 28%;
+    height: 80%;
     font-size: 18px;
     align-self: center;
     margin: 4px;
@@ -45,6 +46,14 @@ button {
     border: 0px;
     background: #d3f4ff;
     box-shadow: rgb(100, 100, 100) 0px 0px 5px 0px;
+    transition: 0.3s;
+}
+
+button:hover{
+    background-color: #ffffff;
+    box-shadow: rgb(100, 100, 100) 0px 0px 15px 0px;
+    width: 30%;
+    height: 86%;
 }
 
 .div-round-shadow-centered {
@@ -127,8 +136,4 @@ input {
     padding-top: 24px;
     padding-bottom: 24px;
     
-}
-
-#single-generator{
-    display: contents;
 }

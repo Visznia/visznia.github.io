@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generator Etykiet GS1</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="html2canvas.js"></script>
 </head>
 <body>
     <div class="div-round-shadow">
@@ -14,9 +14,9 @@
     <div class="div-round-shadow">
         <div id="header">
             Generate single label
-            <button onclick="showSingle()">\/</button>
+            <button onclick="toogleShowSingle()">\/</button>
         </div>
-        <div id="single-generator" style="display: none;">
+        <div id="single-generator">
             <label>COMPANY NAME:</label>
             <input type="text" id="company" value="JAS-FBG S.A.">
             <label>GTIN:</label>
@@ -27,14 +27,12 @@
             <input type="text" id="batch" value="A650H">
             <label>QUANTITY:</label>
             <input type="text" id="quantity" value="128">
+            <div>
+                <button onclick="generateLabel()">Generuj Etykietę</button>
+                <button id="download">Pobierz</button>
+            </div>
         </div>
         <script src="script.js"></script>
-    </div>
-    <div class="div-round-shadow">
-        <div>
-            <button onclick="generateLabel()">Generuj Etykietę</button>
-            <button id="download">Pobierz</button>
-        </div>
     </div>
     <div id="labels"></div>
 </body>

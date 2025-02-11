@@ -70,16 +70,29 @@ function generateLabel() {
     document.getElementById('labels').appendChild(labelDiv);
 }
 
-function showSingle(){
+function toogleShowSingle(){
     const singleGenerator = document.getElementById('single-generator');
-    singleGenerator.style.display = "content"
+    if(singleGenerator.style.display == "none"){
+        console.log('pokazuje')
+        singleGenerator.style.display = "contents";
+        singleGenerator.style.height = "auto"
+    }
+    else{
+        console.log('ukrywam')
+        singleGenerator.style.display = "none";
+        singleGenerator.style.height = "1px"
+    }
+    
 }
 
-document.getElementById("download").addEventListener("click", function () {
+const singleGenerator = document.getElementById('single-generator');
+singleGenerator.style.display = "none";
+
+/* document.getElementById("download").addEventListener("click", function () {
     html2canvas(document.getElementById("capture")).then(canvas => {
         let link = document.createElement("a");
         link.href = canvas.toDataURL("image/png");
         link.download = "capture.png";
         link.click();
     });
-});
+}); */
