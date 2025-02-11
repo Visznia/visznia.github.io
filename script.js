@@ -72,22 +72,40 @@ function generateLabel() {
 
 function toogleShowSingle(){
     const singleGenerator = document.getElementById('single-generator');
+    const multiGenerator = document.getElementById('multi-generator');
     if(singleGenerator.style.display == "none"){
         console.log('pokazuje')
         singleGenerator.style.display = "contents";
-        singleGenerator.style.height = "auto"
+        multiGenerator.style.display = "none";
     }
     else{
         console.log('ukrywam')
         singleGenerator.style.display = "none";
-        singleGenerator.style.height = "1px"
+        multiGenerator.style.display = "contents";
+    }
+    
+}
+
+function toogleShowMulti(){
+    const multiGenerator = document.getElementById('multi-generator');
+    if(multiGenerator.style.display == "none"){
+        console.log('pokazuje')
+        multiGenerator.style.display = "contents";
+        singleGenerator.style.display = "none";
+    }
+    else{
+        console.log('ukrywam')
+        multiGenerator.style.display = "none";
+        singleGenerator.style.display = "contents";
+
     }
     
 }
 
 const singleGenerator = document.getElementById('single-generator');
 singleGenerator.style.display = "none";
-
+const multiGenerator = document.getElementById('multi-generator');
+multiGenerator.style.display = "none";
 /* document.getElementById("download").addEventListener("click", function () {
     html2canvas(document.getElementById("capture")).then(canvas => {
         let link = document.createElement("a");

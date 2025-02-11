@@ -13,9 +13,11 @@
     </div>
     <div class="div-round-shadow">
         <div id="header">
-            Generate single label
-            <button onclick="toogleShowSingle()">\/</button>
+            <button onclick="toogleShowSingle()">Generate single label</button>
+            <button onclick="toogleShowMulti()">Generate multiple labels</button>
         </div>
+    </div>
+    <div class="div-round-shadow">
         <div id="single-generator">
             <label>COMPANY NAME:</label>
             <input type="text" id="company" value="JAS-FBG S.A.">
@@ -27,6 +29,13 @@
             <input type="text" id="batch" value="A650H">
             <label>QUANTITY:</label>
             <input type="text" id="quantity" value="128">
+            <div>
+                <button onclick="generateLabel()">Generuj Etykietę</button>
+                <button id="download">Pobierz</button>
+            </div>
+        </div>
+        <div id="multi-generator">
+            <input type="text">
             <div>
                 <button onclick="generateLabel()">Generuj Etykietę</button>
                 <button id="download">Pobierz</button>
