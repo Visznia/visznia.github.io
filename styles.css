@@ -47,6 +47,22 @@ button {
     box-shadow: rgb(100, 100, 100) 0px 0px 5px 0px;
 }
 
+.div-round-shadow-centered {
+    background: #f1fffe;
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    width: 80%;
+    text-align: center;
+    box-shadow: rgb(100, 100, 100) 0px 0px 5px 0px;
+    padding-top: 35px;
+    padding-bottom: 35px;
+    border-radius: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
 .div-round-shadow {
     background: #f1fffe;
     display: flex;
@@ -83,6 +99,7 @@ input {
     border: 1px solid #000;
     margin: 5%;
     background-color: white;
+    max-width: 600px;
 }
 
 .barcode-text {
@@ -110,4 +127,8 @@ input {
     padding-top: 24px;
     padding-bottom: 24px;
     
+}
+
+#single-generator{
+    display: contents;
 }

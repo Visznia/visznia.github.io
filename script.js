@@ -5,9 +5,10 @@ function generateLabel() {
     var quantity = document.getElementById('quantity').value;
     var batch = document.getElementById('batch').value;
     const labelDiv = document.createElement('div');
-    labelDiv.classList.add('div-round-shadow');
+    labelDiv.classList.add('div-round-shadow-centered');
     const labelTable = document.createElement('table');
     labelTable.classList.add('label');
+    labelTable.id = "capture";
 
     var tableText = `<tbody>`;
 
@@ -69,15 +70,16 @@ function generateLabel() {
     document.getElementById('labels').appendChild(labelDiv);
 }
 
-function exportPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let y = 10;
-    
-    document.querySelectorAll('.label').forEach(label => {
-        doc.text(label.innerText, 10, y);
-        y += 20;
-    });
-    
-    doc.save("etykiety.pdf");
+function showSingle(){
+    const singleGenerator = document.getElementById('single-generator');
+    singleGenerator.style.display = "content"
 }
+
+document.getElementById("download").addEventListener("click", function () {
+    html2canvas(document.getElementById("capture")).then(canvas => {
+        let link = document.createElement("a");
+        link.href = canvas.toDataURL("image/png");
+        link.download = "capture.png";
+        link.click();
+    });
+});
