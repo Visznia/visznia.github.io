@@ -11,28 +11,39 @@
     <div class="div-round-shadow title-bar">
         <h1>LOGISTICS LABEL GENERATOR</h1>
     </div>
-    <div class="main-holder">
-        <div class="tool-bar">    
-            <div class="div-round-shadow">
+    <div class="main-holder">  
+        <div class="div-round-shadow">
                 <div id="header">
                     <button onclick="toogleShowSingle()">Single label</button>
                     <button onclick="toogleShowMulti()">Multiple labels</button>
                 </div>
-            </div>
-            <div class="div-round-shadow">
+        </div>
+        <div class="div-round-shadow">
                 <div id="single-generator">
-                    <label>COMPANY NAME:</label>
-                    <input type="text" id="company" value="TEST INC.">
-                    <label>GTIN:</label>
-                    <input type="text" id="gtin" value="5900811773412">
-                    <label>SSCC:</label>
-                    <input type="text" id="sscc" value="34125900811773412">
-                    <label>BATCH:</label>
-                    <input type="text" id="batch" value="A650H">
-                    <label>QUANTITY:</label>
-                    <input type="text" id="quantity" value="128">
-                    <div>
+                    <div class="justified">
+                        <label>COMPANY NAME:</label>
+                        <input type="text" id="company" value="TEST INC.">
+                        <label>GTIN:</label>
+                        <input type="text" id="gtin" value="5900811773412">
+                        <label>PRODUCT NAME.:</label>
+                        <input type="text" id="name" value="WC CLEANING GEL 120ml">
+                        <label>SSCC:</label>
+                        <input type="text" id="sscc" value="34125900811773412">
+                        <label>BATCH:</label>
+                        <input type="text" id="batch" value="A650H">
                         <button onclick="generateLabel()">Generate</button>
+                    </div>
+                    <div class="justified">
+                        <label>QUANTITY:</label>
+                        <input type="text" id="quantity" value="128">
+                        <label>BEST BEFORE:</label>
+                        <input type="date" id="bestBefore">
+                        <label>SERIAL:</label>
+                        <input type="text" id="serial" value="916/2025">
+                        <label>ORDER NUMBER:</label>
+                        <input type="text" id="order" value="A650H">
+                        <label>INFO:</label>
+                        <input type="text" id="info" value="Test">
                         <button id="download">Download</button>
                     </div>
                 </div>
@@ -44,10 +55,8 @@
                     </div>
                 </div>
                 <script src="script.js"></script>
-            </div>
         </div>
-        <div id="labels" class="div-round-shadow">  
-        </div>
+        <div id="labels" class="div-round-shadow"></div>
     </div> 
 </body>
 </html>
