@@ -1,62 +1,991 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOGISTICS LABEL GENERATOR</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="html2canvas.js"></script>
+    <title>Warehouse Management Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Tailwind gray-100 */
+            color: #1f2937; /* Tailwind gray-800 */
+        }
+        .btn {
+            @apply px-4 py-2 rounded-lg font-semibold text-white shadow-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2;
+        }
+        .btn-primary {
+            @apply bg-blue-600 hover:bg-blue-700 focus:ring-blue-500;
+        }
+        .btn-secondary {
+            @apply bg-green-500 hover:bg-green-600 focus:ring-green-400;
+        }
+        .btn-danger {
+            @apply bg-red-500 hover:bg-red-600 focus:ring-red-400;
+        }
+        .btn-warning {
+            @apply bg-yellow-500 hover:bg-yellow-600 text-white focus:ring-yellow-400;
+        }
+        .btn-info {
+            @apply bg-sky-500 hover:bg-sky-600 text-white focus:ring-sky-400;
+        }
+        .btn-neutral { /* For financial report button */
+            @apply bg-gray-500 hover:bg-gray-600 focus:ring-gray-400;
+        }
+        .btn-disabled {
+            @apply bg-gray-400 hover:bg-gray-400 cursor-not-allowed text-gray-700;
+        }
+        .card {
+            @apply bg-white shadow-lg rounded-xl p-6;
+        }
+        .deal-card {
+            @apply bg-white shadow-md rounded-lg p-4 border border-gray-200 hover:shadow-lg transition-shadow flex flex-col justify-between;
+        }
+        .modal-backdrop {
+            @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4;
+        }
+        .modal-content {
+            @apply bg-white p-6 rounded-lg shadow-xl max-w-xl w-full; /* Default */
+        }
+        .modal-content-lg { /* For financial report */
+             @apply max-w-3xl;
+        }
+        .table-striped tbody tr:nth-child(odd) {
+            @apply bg-gray-50;
+        }
+    </style>
 </head>
-<body>
-    <div class="div-round-shadow title-bar">
-        <h1>LOGISTICS LABEL GENERATOR</h1>
+<body class="min-h-screen flex flex-col items-center justify-start p-4">
+
+    <div id="loading-screen" class="fixed inset-0 bg-white flex flex-col items-center justify-center z-[100]">
+        <svg class="animate-spin h-10 w-10 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="text-lg font-semibold text-gray-700">Loading Warehouse Simulator...</p>
     </div>
-    <div class="main-holder">  
-        <div class="div-round-shadow">
-                <div id="header">
-                    <button onclick="toogleShowSingle()">Single label</button>
-                    <button onclick="toogleShowMulti()">Multiple labels</button>
+
+    <div id="game-container" class="hidden w-full max-w-7xl mx-auto space-y-6">
+        <header class="card text-center">
+            <h1 class="text-3xl font-bold text-blue-700">Warehouse Tycoon</h1>
+            <p class="text-sm text-gray-500">Your User ID: <span id="user-id-display" class="font-semibold"></span></p>
+        </header>
+
+        <section id="stats-section" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div class="card text-center">
+                <h2 class="text-lg font-semibold text-gray-700">Money</h2>
+                <p id="money-display" class="text-2xl font-bold text-green-600">$0</p>
+            </div>
+            <div class="card text-center">
+                <h2 class="text-lg font-semibold text-gray-700">Day</h2>
+                <p id="day-display" class="text-2xl font-bold text-blue-600">1</p>
+            </div>
+            <div class="card text-center">
+                <h2 class="text-lg font-semibold text-gray-700">Reputation</h2>
+                <p id="reputation-display" class="text-2xl font-bold text-indigo-600">0</p>
+            </div>
+            <div class="card text-center">
+                <h2 class="text-lg font-semibold text-gray-700">Warehouse Space</h2>
+                <p id="warehouse-space-display" class="text-xl font-bold text-purple-600">0 / 0 Pallets</p>
+                 <p class="text-xs text-gray-500">(Used / Capacity)</p>
+            </div>
+            <div class="card text-center">
+                <h2 class="text-lg font-semibold text-gray-700">Daily Throughput</h2>
+                <p id="throughput-display" class="text-xl font-bold text-teal-600">0 Pallets</p>
+                <p class="text-xs text-gray-500">Ramps: <span id="ramps-stat-display">0</span>, Staff: <span id="staff-stat-display">0</span><br>Used Today: <span id="throughput-used-today-display">0</span></p>
+            </div>
+             <div class="card text-center">
+                <h2 class="text-lg font-semibold text-gray-700">Last Day P/L</h2>
+                <p id="last-day-pl-display" class="text-xl font-bold text-orange-500">$0</p>
+                 <p class="text-xs text-gray-500">Income: $<span id="last-day-income-display">0</span><br>Expenses: $<span id="last-day-expenses-display">0</span></p>
+            </div>
+        </section>
+
+        <section id="controls-section" class="card flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-4">
+            <button id="next-day-btn" class="btn btn-primary w-full sm:w-auto">Next Day</button>
+            <button id="save-game-btn" class="btn btn-secondary w-full sm:w-auto">Save Game</button>
+            <button id="financial-report-btn" class="btn btn-neutral w-full sm:w-auto">Financial Report</button>
+            <button id="reset-game-btn" class="btn btn-danger w-full sm:w-auto">Reset Game</button>
+        </section>
+        
+        <section id="upgrades-section" class="card">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-800 text-center">Warehouse Operations & Upgrades</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="p-4 border rounded-lg shadow-sm">
+                    <h3 class="text-lg font-semibold">Loading Ramps: <span id="ramps-count-display">0</span></h3>
+                    <p class="text-xs text-gray-500 mb-1">Each adds <span id="ramp-capacity-info-display" class="font-medium">0</span> to daily throughput.</p>
+                    <button id="buy-ramp-btn" class="btn btn-info mt-2 w-full text-sm">Buy Ramp ($<span id="ramp-cost-display">0</span>)</button>
                 </div>
+                <div class="p-4 border rounded-lg shadow-sm">
+                    <h3 class="text-lg font-semibold">Staff: <span id="staff-count-display">0</span></h3>
+                    <p class="text-xs text-gray-500 mb-1">Each adds <span id="staff-capacity-info-display" class="font-medium">0</span> to daily throughput. Daily Wage: $<span id="staff-wage-info-display">0</span> ea.</p>
+                    <button id="hire-staff-btn" class="btn btn-info mt-2 w-full text-sm">Hire Staff ($<span id="staff-hire-cost-display">0</span>)</button>
+                </div>
+                <div class="p-4 border rounded-lg shadow-sm">
+                    <h3 class="text-lg font-semibold">Warehouse Capacity</h3>
+                    <p class="text-xs text-gray-500 mb-1">Current Level: <span id="capacity-upgrade-level-display">1</span>. Next adds <span id="warehouse-expansion-increment-info-display" class="font-medium">0</span> pallets.</p>
+                    <button id="expand-warehouse-btn" class="btn btn-info mt-2 w-full text-sm">Expand ($<span id="expand-cost-display">0</span>)</button>
+                </div>
+                <div class="p-4 border rounded-lg shadow-sm">
+                    <h3 class="text-lg font-semibold">Forklifts: <span id="forklift-count-display">0</span></h3>
+                    <p class="text-xs text-gray-500 mb-1">Each adds <span id="forklift-throughput-bonus-info-display" class="font-medium">0</span> to total daily throughput.</p>
+                    <button id="buy-forklift-btn" class="btn btn-info mt-2 w-full text-sm">Buy Forklift ($<span id="forklift-cost-display">0</span>)</button>
+                </div>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <section id="deals-section" class="lg:col-span-2 card">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Available Deals</h2>
+                <div id="available-deals-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <p id="no-deals-message" class="text-gray-500 col-span-full text-center">No new deals available.</p>
+                </div>
+            </section>
+
+            <section id="message-log-section" class="card">
+                <h2 class="text-xl font-semibold mb-3 text-gray-800">Activity Log</h2>
+                <div id="message-log-container" class="h-64 overflow-y-auto bg-gray-50 p-3 rounded-md border border-gray-200 text-sm">
+                </div>
+            </section>
         </div>
-        <div class="div-round-shadow">
-                <div id="single-generator">
-                    <div class="justified">
-                        <label>COMPANY NAME:</label>
-                        <input type="text" id="company" value="TEST INC.">
-                        <label>GTIN:</label>
-                        <input type="text" id="gtin" value="5900811773412">
-                        <label>PRODUCT NAME.:</label>
-                        <input type="text" id="name" value="WC CLEANING GEL 120ml">
-                        <label>SSCC:</label>
-                        <input type="text" id="sscc" value="34125900811773412">
-                        <label>BATCH:</label>
-                        <input type="text" id="batch" value="A650H">
-                        <button onclick="generateLabel()">Generate</button>
-                    </div>
-                    <div class="justified">
-                        <label>QUANTITY:</label>
-                        <input type="text" id="quantity" value="128">
-                        <label>BEST BEFORE:</label>
-                        <input type="date" id="bestBefore">
-                        <label>SERIAL:</label>
-                        <input type="text" id="serial" value="916/2025">
-                        <label>ORDER NUMBER:</label>
-                        <input type="text" id="order" value="A650H">
-                        <label>INFO:</label>
-                        <input type="text" id="info" value="Test">
-                        <button id="download">Download</button>
-                    </div>
-                </div>
-                <div id="multi-generator">
-                    <input type="text">
-                    <div>
-                        <button onclick="generateLabel()">Generate</button>
-                        <button id="download">Download</button>
-                    </div>
-                </div>
-                <script src="script.js"></script>
+
+        <section id="active-deals-section" class="card">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Goods in Storage & Active Cross-Docks</h2>
+            <div id="active-deals-container" class="space-y-4">
+                <p id="no-active-deals-message" class="text-gray-500 text-center">No goods in storage or active cross-docks.</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- Generic Modal -->
+    <div id="custom-modal" class="modal-backdrop hidden">
+        <div id="custom-modal-content" class="modal-content">
+            <h3 id="modal-title" class="text-xl font-semibold mb-3">Modal Title</h3>
+            <p id="modal-message" class="text-gray-700 mb-4">Modal message.</p>
+            <div id="modal-actions" class="flex justify-end space-x-2">
+                <button id="modal-confirm-btn" class="btn btn-primary">Confirm</button>
+                <button id="modal-cancel-btn" class="btn bg-gray-300 hover:bg-gray-400 text-gray-800">Cancel</button>
+            </div>
         </div>
-        <div id="labels" class="div-round-shadow"></div>
-    </div> 
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "test", authDomain: "test", projectId: "test" };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'warehouse-sim-dev-1.3';
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        // setLogLevel('debug');
+
+        // --- Game Constants ---
+        const RAMP_CAPACITY_PER_DAY = 20;
+        const STAFF_CAPACITY_PER_DAY = 10;
+        const FORKLIFT_THROUGHPUT_BONUS = 15;
+
+        const RAMP_COST = 8000; // Slightly increased
+        const STAFF_HIRE_COST = 1200; // Slightly increased
+        const STAFF_DAILY_WAGE = 100; // Slightly increased
+        const WAREHOUSE_EXPANSION_COST_BASE = 15000; // Base cost for level 2 expansion
+        const WAREHOUSE_EXPANSION_INCREMENT = 50;
+        const EQUIPMENT_COSTS = {
+            forklift: 6500, // Slightly increased
+        };
+        const CROSS_DOCK_REWARD_PER_PALLET = 3;
+        
+        const PENALTY_PER_UNHANDLED_PALLET_DAY = 12; // Slightly increased
+        const REPUTATION_HIT_FOR_DAILY_OVERLOAD = 4; // Slightly increased
+        const MAX_LOG_MESSAGES = 50;
+        const DEALS_PER_DAY_MIN = 2;
+        const DEALS_PER_DAY_MAX = 5; // Increased max deals
+        const HISTORICAL_FINANCIAL_DAYS = 30; // Number of days to keep financial history
+        const GAME_VERSION = "1.3.0";
+
+        let gameState = {
+            money: 7500, 
+            day: 1,
+            reputation: 100,
+            warehouseCapacity: 100,
+            currentWarehouseUsage: 0, // Only for stored goods
+            numberOfRamps: 1,
+            staffCount: 1,
+            dailyThroughputCapacity: 0,
+            throughputUsedToday: 0,
+            warehouseExpansionLevel: 1,
+            staffDailyWageTotal: 0,
+            ownedEquipment: { forklifts: 0 }, // Shelving removed
+            
+            dailyIncome: 0,
+            dailyExpenses: 0,
+            lastDayIncome: 0,
+            lastDayExpenses: 0,
+            lastDayProfitLoss: 0,
+            historicalFinancials: [], // [{ day, income, expenses, profitLoss }]
+            
+            dealsToday: { accepted: 0, completedStorage: 0, completedCrossDock: 0 },
+
+            availableDeals: [], // dealType: 'storage' or 'cross_docking'
+            activeDeals: [], 
+            messageLog: [],
+            userId: null,
+            lastDealId: 0,
+            gameVersion: GAME_VERSION
+        };
+
+        // --- UI Elements ---
+        const moneyDisplay = document.getElementById('money-display');
+        const dayDisplay = document.getElementById('day-display');
+        const reputationDisplay = document.getElementById('reputation-display');
+        const warehouseSpaceDisplay = document.getElementById('warehouse-space-display');
+        const throughputDisplay = document.getElementById('throughput-display');
+        const rampsStatDisplay = document.getElementById('ramps-stat-display');
+        const staffStatDisplay = document.getElementById('staff-stat-display');
+        const throughputUsedTodayDisplay = document.getElementById('throughput-used-today-display');
+        
+        const lastDayPlDisplay = document.getElementById('last-day-pl-display');
+        const lastDayIncomeDisplay = document.getElementById('last-day-income-display');
+        const lastDayExpensesDisplay = document.getElementById('last-day-expenses-display');
+        
+        const rampsCountDisplay = document.getElementById('ramps-count-display');
+        const staffCountDisplay = document.getElementById('staff-count-display');
+        const buyRampBtn = document.getElementById('buy-ramp-btn');
+        const hireStaffBtn = document.getElementById('hire-staff-btn');
+        const rampCostDisplay = document.getElementById('ramp-cost-display');
+        const staffHireCostDisplay = document.getElementById('staff-hire-cost-display');
+        const staffWageInfoDisplay = document.getElementById('staff-wage-info-display');
+        const rampCapacityInfoDisplay = document.getElementById('ramp-capacity-info-display');
+        const staffCapacityInfoDisplay = document.getElementById('staff-capacity-info-display');
+        
+        const expandWarehouseBtn = document.getElementById('expand-warehouse-btn');
+        const expandCostDisplay = document.getElementById('expand-cost-display');
+        const capacityUpgradeLevelDisplay = document.getElementById('capacity-upgrade-level-display');
+        const warehouseExpansionIncrementInfoDisplay = document.getElementById('warehouse-expansion-increment-info-display');
+
+        const forkliftCountDisplay = document.getElementById('forklift-count-display');
+        const buyForkliftBtn = document.getElementById('buy-forklift-btn');
+        const forkliftCostDisplay = document.getElementById('forklift-cost-display');
+        const forkliftThroughputBonusInfoDisplay = document.getElementById('forklift-throughput-bonus-info-display');
+
+        const availableDealsContainer = document.getElementById('available-deals-container');
+        const activeDealsContainer = document.getElementById('active-deals-container');
+        const nextDayBtn = document.getElementById('next-day-btn');
+        const saveGameBtn = document.getElementById('save-game-btn');
+        const resetGameBtn = document.getElementById('reset-game-btn');
+        const financialReportBtn = document.getElementById('financial-report-btn');
+        const messageLogContainer = document.getElementById('message-log-container');
+        const noDealsMessage = document.getElementById('no-deals-message');
+        const noActiveDealsMessage = document.getElementById('no-active-deals-message');
+        const userIdDisplay = document.getElementById('user-id-display');
+        const loadingScreen = document.getElementById('loading-screen');
+        const gameContainer = document.getElementById('game-container');
+        
+        const customModal = document.getElementById('custom-modal');
+        const modalContent = document.getElementById('custom-modal-content');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+        // --- Authentication and Data Handling ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                gameState.userId = user.uid;
+                userIdDisplay.textContent = gameState.userId;
+                console.log("User authenticated:", gameState.userId);
+                await loadGame();
+            } else {
+                console.log("User not authenticated, attempting sign-in...");
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                         await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                         await signInAnonymously(auth);
+                    }
+                } catch (error) {
+                    console.error("Error signing in:", error);
+                    logMessage(`Error: Could not sign in. ${error.message}`, 'error');
+                    showLoading(false); 
+                }
+            }
+        });
+
+        async function getGameDocRef() {
+            if (!gameState.userId) return null;
+            return doc(db, "artifacts", appId, "users", gameState.userId, "warehouseGame", "gameState_v1_3");
+        }
+
+        async function saveGame() {
+            if (!gameState.userId) {
+                showCustomModal("Save Error", "User not authenticated.", () => {}, true, "OK");
+                return;
+            }
+            const gameDocRef = await getGameDocRef();
+            if (!gameDocRef) return;
+            try {
+                const saveData = JSON.parse(JSON.stringify({ ...gameState, lastSave: serverTimestamp() }));
+                await setDoc(gameDocRef, saveData);
+                logMessage("Game saved successfully!", "success");
+                showCustomModal("Game Saved", "Your progress has been saved.", () => {}, true, "OK");
+            } catch (error) {
+                console.error("Error saving game:", error);
+                logMessage(`Error saving game: ${error.message}`, "error");
+                showCustomModal("Save Error", `Could not save game: ${error.message}`, () => {}, true, "OK");
+            }
+        }
+        
+        async function loadGame() {
+            showLoading(true);
+            if (!gameState.userId) {
+                initializeNewGame();
+                finalizeGameLoad();
+                return;
+            }
+            const gameDocRef = await getGameDocRef();
+            if (!gameDocRef) {
+                initializeNewGame();
+                finalizeGameLoad();
+                return;
+            }
+            try {
+                const docSnap = await getDoc(gameDocRef);
+                if (docSnap.exists()) {
+                    const loadedData = docSnap.data();
+                    if (loadedData.gameVersion === GAME_VERSION) {
+                        gameState = { ...gameState, ...loadedData }; 
+                        gameState.ownedEquipment = { ...{forklifts: 0}, ...loadedData.ownedEquipment }; // No shelving
+                        gameState.messageLog = Array.isArray(loadedData.messageLog) ? loadedData.messageLog : [];
+                        gameState.activeDeals = Array.isArray(loadedData.activeDeals) ? loadedData.activeDeals : [];
+                        gameState.availableDeals = Array.isArray(loadedData.availableDeals) ? loadedData.availableDeals : [];
+                        gameState.historicalFinancials = Array.isArray(loadedData.historicalFinancials) ? loadedData.historicalFinancials : [];
+                        gameState.dealsToday = { ...{accepted:0, completedStorage:0, completedCrossDock:0}, ...loadedData.dealsToday};
+                        logMessage("Game loaded successfully!", "success");
+                    } else {
+                        logMessage(`Version mismatch (Save: ${loadedData.gameVersion || 'Unknown'}, Current: ${GAME_VERSION}). Starting new game.`, "warning");
+                        initializeNewGame();
+                        await saveGame();
+                    }
+                } else {
+                    logMessage("No saved game found. Starting new game.", "info");
+                    initializeNewGame();
+                    await saveGame();
+                }
+            } catch (error) {
+                console.error("Error loading game:", error);
+                logMessage(`Error loading game: ${error.message}. Starting new game.`, "error");
+                initializeNewGame();
+            } finally {
+                finalizeGameLoad();
+            }
+        }
+        
+        function finalizeGameLoad() {
+            if (!gameState.availableDeals || gameState.availableDeals.length === 0) generateNewDeals();
+            calculateStaffWages();
+            updateDailyThroughputAndCapacity();
+            updateUI();
+            showLoading(false);
+        }
+
+        function initializeNewGame() {
+            gameState.money = 7500;
+            gameState.day = 1;
+            gameState.reputation = 20;
+            gameState.warehouseCapacity = 100;
+            gameState.currentWarehouseUsage = 0;
+            gameState.numberOfRamps = 1;
+            gameState.staffCount = 1;
+            gameState.warehouseExpansionLevel = 1;
+            gameState.ownedEquipment = { forklifts: 0 }; // No shelving
+            gameState.staffDailyWageTotal = 0;
+            gameState.dailyIncome = 0; gameState.dailyExpenses = 0;
+            gameState.lastDayIncome = 0; gameState.lastDayExpenses = 0; gameState.lastDayProfitLoss = 0;
+            gameState.historicalFinancials = [];
+            gameState.throughputUsedToday = 0;
+            gameState.dealsToday = { accepted: 0, completedStorage: 0, completedCrossDock: 0 };
+            gameState.availableDeals = []; gameState.activeDeals = [];
+            gameState.messageLog = ["Welcome to Warehouse Tycoon v1.3! Cross-docking & financial reports added."];
+            gameState.lastDealId = 0; gameState.gameVersion = GAME_VERSION;
+        }
+
+        async function resetGameData() {
+            showCustomModal( "Reset Game", "Are you sure you want to reset all progress? This cannot be undone.",
+                async () => {
+                    initializeNewGame();
+                    if (gameState.userId) await saveGame(); 
+                    finalizeGameLoad();
+                    logMessage("Game has been reset.", "warning");
+                    nextDayBtn.disabled = false;
+                }
+            );
+        }
+
+        function showLoading(isLoading) {
+            loadingScreen.classList.toggle('hidden', !isLoading);
+            gameContainer.classList.toggle('hidden', isLoading);
+        }
+
+        function calculateStaffWages() {
+            gameState.staffDailyWageTotal = gameState.staffCount * STAFF_DAILY_WAGE;
+        }
+
+        function updateDailyThroughputAndCapacity() {
+            let throughput = (gameState.numberOfRamps * RAMP_CAPACITY_PER_DAY) + (gameState.staffCount * STAFF_CAPACITY_PER_DAY);
+            throughput += gameState.ownedEquipment.forklifts * FORKLIFT_THROUGHPUT_BONUS;
+            gameState.dailyThroughputCapacity = throughput;
+            // Capacity only from expansion level
+            gameState.warehouseCapacity = (gameState.warehouseExpansionLevel - 1) * WAREHOUSE_EXPANSION_INCREMENT + 100;
+        }
+
+        function buyRamp() {
+            if (gameState.money >= RAMP_COST) {
+                gameState.money -= RAMP_COST; gameState.numberOfRamps++;
+                updateDailyThroughputAndCapacity();
+                logMessage(`Purchased a loading ramp for $${RAMP_COST.toLocaleString()}. Ramps: ${gameState.numberOfRamps}.`, "event");
+                updateUI();
+            } else {
+                showCustomModal("Insufficient Funds", `You need $${RAMP_COST.toLocaleString()} to buy a ramp.`, null, true, "OK");
+            }
+        }
+
+        function hireStaff() {
+            if (gameState.money >= STAFF_HIRE_COST) {
+                gameState.money -= STAFF_HIRE_COST; gameState.staffCount++;
+                calculateStaffWages(); updateDailyThroughputAndCapacity();
+                logMessage(`Hired new staff for $${STAFF_HIRE_COST.toLocaleString()}. Staff: ${gameState.staffCount}. Daily wages: $${gameState.staffDailyWageTotal.toLocaleString()}.`, "event");
+                updateUI();
+            } else {
+                showCustomModal("Insufficient Funds", `You need $${STAFF_HIRE_COST.toLocaleString()} to hire staff.`, null, true, "OK");
+            }
+        }
+        
+        function getCurrentExpansionCost() {
+            // Level 1 cost is effectively for buying level 2. Base cost is for the *next* level.
+            return WAREHOUSE_EXPANSION_COST_BASE * Math.pow(1.8, gameState.warehouseExpansionLevel -1);
+        }
+
+        function expandWarehouse() {
+            const cost = getCurrentExpansionCost();
+            if (gameState.money >= cost) {
+                gameState.money -= cost; gameState.warehouseExpansionLevel++;
+                updateDailyThroughputAndCapacity(); 
+                logMessage(`Expanded warehouse to Level ${gameState.warehouseExpansionLevel} for $${cost.toLocaleString()}. Capacity increased.`, "event");
+                updateUI();
+            } else {
+                showCustomModal("Insufficient Funds", `You need $${cost.toLocaleString()} to expand warehouse.`, null, true, "OK");
+            }
+        }
+
+        function buyEquipment(type) { // Only 'forklift' expected now
+            const cost = EQUIPMENT_COSTS[type];
+            if (gameState.money >= cost) {
+                gameState.money -= cost;
+                if (type === 'forklift') {
+                    gameState.ownedEquipment.forklifts++;
+                    logMessage(`Purchased a forklift for $${cost.toLocaleString()}. Forklifts: ${gameState.ownedEquipment.forklifts}.`, "event");
+                }
+                updateDailyThroughputAndCapacity(); updateUI();
+            } else {
+                showCustomModal("Insufficient Funds", `You need $${cost.toLocaleString()} to buy ${type}.`, null, true, "OK");
+            }
+        }
+
+        function generateNewDeals() {
+            gameState.availableDeals = [];
+            const dealModifier = math.floor(gameState.reputation/20);
+            const numDeals = Math.floor(Math.random() * (DEALS_PER_DAY_MAX - DEALS_PER_DAY_MIN + 1 + dealModifier)) + DEALS_PER_DAY_MIN;
+            const goodsTypesStorage = ["Luxury Goods", "Industrial Parts", "Pharmaceuticals", "Bulk Textiles", "Electronics", "Automotive Parts"];
+            const goodsTypesCrossDock = ["Fresh Produce", "Express Parcels", "Time-Sensitive Docs", "Event Supplies"];
+            const clientNames = ["Apex Logistics", "Nova Shippers", "Orion Haulage", "Zenith Freight", "Terra Cargo", "Momentum Deliveries", "SwiftTrans Inc."];
+
+            for (let i = 0; i < numDeals; i++) {
+                gameState.lastDealId++;
+                const dealType = Math.random() < 0.3 ? 'cross_docking' : 'storage'; // 30% chance for cross-docking
+
+                if (dealType === 'storage') {
+                    const totalPallets = Math.floor(Math.random() * 41) + 20; // 20 to 60
+                    const arrivalDuration = Math.max(1, Math.floor(Math.random() * (totalPallets / 8)) + 2); 
+                    const palletsPerDayArrival = Math.ceil(totalPallets / arrivalDuration);
+                    const storageDuration = Math.floor(Math.random() * 7) + 3; // 3-9 days
+                    const departureDuration = Math.max(1, Math.floor(Math.random() * (totalPallets / 8)) + 2);
+                    const palletsPerDayDeparture = Math.ceil(totalPallets / departureDuration);
+                    const baseRewardPerPallet = (Math.random() * 2.5 + 2); // $2-4.5
+                    const durationBonus = (arrivalDuration + storageDuration + departureDuration) * 0.1;
+                    const handlingBonus = (palletsPerDayArrival + palletsPerDayDeparture) * 0.05;
+                    let reward = Math.ceil(totalPallets * baseRewardPerPallet * (1 + durationBonus + handlingBonus));
+                    reward = Math.max(reward, totalPallets * 7); // Min reward guarantee
+
+                    gameState.availableDeals.push({
+                        id: `deal-${gameState.lastDealId}-${Date.now()}`, dealType: 'storage',
+                        clientName: clientNames[Math.floor(Math.random() * clientNames.length)],
+                        goodsType: goodsTypesStorage[Math.floor(Math.random() * goodsTypesStorage.length)],
+                        totalPalletsInDeal: totalPallets, reward: reward,
+                        arrivalDurationDays: arrivalDuration, palletsPerDayArrival: palletsPerDayArrival,
+                        storageDurationDays: storageDuration, departureDurationDays: departureDuration,
+                        palletsPerDayDeparture: palletsPerDayDeparture, palletsArrivedSoFar: 0,
+                        palletsInStorage: 0, palletsDepartedSoFar: 0, currentPhase: 'pending_acceptance',
+                        daysInCurrentPhase: 0, dayAccepted: 0, penaltyAppliedThisDay: false,
+                    });
+                } else { // cross_docking
+                    const totalPallets = Math.floor(Math.random() * (gameState.dailyThroughputCapacity * 0.4)) + 5; // Up to 40% of current throughput, min 5
+                    const reward = totalPallets * CROSS_DOCK_REWARD_PER_PALLET + Math.floor(Math.random() * totalPallets * 2); // Base + bonus
+                    gameState.availableDeals.push({
+                        id: `deal-${gameState.lastDealId}-${Date.now()}`, dealType: 'cross_docking',
+                        clientName: clientNames[Math.floor(Math.random() * clientNames.length)],
+                        goodsType: goodsTypesCrossDock[Math.floor(Math.random() * goodsTypesCrossDock.length)],
+                        totalPalletsInDeal: totalPallets, reward: reward,
+                        // Cross-docking specific (simplified phases for consistency)
+                        arrivalDurationDays: 1, palletsPerDayArrival: totalPallets, // Arrives in one go
+                        storageDurationDays: 0, // No storage phase
+                        departureDurationDays: 1, palletsPerDayDeparture: totalPallets, // Departs in one go
+                        palletsArrivedSoFar: 0, palletsInStorage: 0, palletsDepartedSoFar: 0,
+                        currentPhase: 'pending_acceptance', daysInCurrentPhase: 0, dayAccepted: 0,
+                        penaltyAppliedThisDay: false,
+                    });
+                }
+            }
+            logMessage(`Generated ${gameState.availableDeals.length} new deals.`, "info");
+        }
+        
+        function acceptDeal(dealId) {
+            const dealIndex = gameState.availableDeals.findIndex(d => d.id === dealId);
+            if (dealIndex === -1) return;
+            const dealToAccept = gameState.availableDeals[dealIndex];
+
+            if (dealToAccept.dealType === 'storage') { // Only storage deals check full capacity
+                if (dealToAccept.totalPalletsInDeal > gameState.warehouseCapacity) {
+                    showCustomModal("Capacity Alert", `This storage deal requires ${dealToAccept.totalPalletsInDeal} pallets total, but your warehouse max capacity is ${gameState.warehouseCapacity}.`, null, true, "OK");
+                    return;
+                }
+                if (gameState.currentWarehouseUsage + dealToAccept.palletsPerDayArrival > gameState.warehouseCapacity) {
+                    showCustomModal("Space Alert", `Accepting this storage deal would immediately exceed your warehouse space on the first day of arrivals (${dealToAccept.palletsPerDayArrival} pallets).`, null, true, "OK");
+                    return;
+                }
+            } else if (dealToAccept.dealType === 'cross_docking') {
+                 // Cross-docking doesn't use long-term storage, but we check if throughput can handle it.
+                 // This check is implicitly handled by the advanceDay logic. We can accept if it looks plausible.
+                 if (dealToAccept.totalPalletsInDeal > gameState.dailyThroughputCapacity) {
+                      showCustomModal("Throughput Alert", `This cross-docking deal (${dealToAccept.totalPalletsInDeal} pallets) might exceed your daily handling capacity of ${gameState.dailyThroughputCapacity} pallets. Accept with caution.`, null, true, "OK");
+                      // Allow acceptance, penalty will apply if it fails
+                 }
+            }
+
+            const acceptedDeal = { ...dealToAccept };
+            acceptedDeal.currentPhase = acceptedDeal.dealType === 'cross_docking' ? 'cross_docking_active' : 'arriving';
+            acceptedDeal.dayAccepted = gameState.day;
+            acceptedDeal.daysInCurrentPhase = 0;
+            
+            gameState.activeDeals.push(acceptedDeal);
+            gameState.dealsToday.accepted++;
+            gameState.availableDeals.splice(dealIndex, 1);
+            logMessage(`Accepted ${acceptedDeal.dealType} deal: ${acceptedDeal.clientName} (${acceptedDeal.totalPalletsInDeal} ${acceptedDeal.goodsType}). Est. Reward: $${acceptedDeal.reward.toLocaleString()}.`, "event");
+            updateUI();
+        }
+
+        function advanceDay() {
+            gameState.day++;
+            logMessage(`Beginning of Day ${gameState.day}.`, "system");
+            
+            gameState.dailyIncome = 0; gameState.dailyExpenses = 0;
+            gameState.throughputUsedToday = 0;
+            gameState.dealsToday = { accepted: 0, completedStorage: 0, completedCrossDock: 0 }; // Reset daily counters
+
+
+            if (gameState.staffDailyWageTotal > 0) {
+                gameState.money -= gameState.staffDailyWageTotal;
+                gameState.dailyExpenses += gameState.staffDailyWageTotal;
+                logMessage(`Paid $${gameState.staffDailyWageTotal.toLocaleString()} in staff wages.`, "expense");
+            }
+            updateDailyThroughputAndCapacity(); 
+
+            let remainingDailyCapacity = gameState.dailyThroughputCapacity;
+            let dailyOverloadPenaltyAppliedOverall = false;
+
+            gameState.activeDeals.forEach(deal => deal.penaltyAppliedThisDay = false);
+
+            // Priority 1: Cross-Docking Deals
+            gameState.activeDeals = gameState.activeDeals.filter(deal => {
+                if (deal.dealType !== 'cross_docking' || deal.currentPhase === 'completed_remove') return true; // Keep non-cross-docking or already completed
+
+                const palletsToHandle = deal.totalPalletsInDeal; // Assume all in one go for simplicity
+                let handledSuccessfully = false;
+
+                if (palletsToHandle <= remainingDailyCapacity) {
+                    remainingDailyCapacity -= palletsToHandle;
+                    gameState.throughputUsedToday += palletsToHandle;
+                    gameState.money += deal.reward;
+                    gameState.dailyIncome += deal.reward;
+                    gameState.dealsToday.completedCrossDock++;
+                    logMessage(`Cross-docking for ${deal.clientName} (${palletsToHandle} pallets) COMPLETED! Earned $${deal.reward.toLocaleString()}.`, 'success');
+                    handledSuccessfully = true;
+                    deal.currentPhase = 'completed_remove'; // Mark for removal
+                    return false; // Remove from active
+                } else {
+                    logMessage(`Failed to cross-dock ${palletsToHandle} pallets for ${deal.clientName} due to insufficient daily throughput.`, 'warning');
+                    // No partial cross-docking for now. It's all or nothing for simplicity.
+                    // Penalty for failure (could be specific to cross-dock failure)
+                    const crossDockFailPenalty = Math.max(50, palletsToHandle * (PENALTY_PER_UNHANDLED_PALLET_DAY / 2)); // Lesser penalty than storage fail
+                    gameState.money -= crossDockFailPenalty;
+                    gameState.dailyExpenses += crossDockFailPenalty;
+                    gameState.reputation -= Math.ceil(REPUTATION_HIT_FOR_DAILY_OVERLOAD / 2);
+                    logMessage(`Cross-docking failure penalty: $${crossDockFailPenalty.toLocaleString()}. Reputation hit.`, 'error');
+                    dailyOverloadPenaltyAppliedOverall = true; 
+                    // Deal remains active or could be failed explicitly here if desired (e.g., move to 'failed' phase)
+                    // For now, it just fails for the day and might be attempted next day if structure allowed, but simpler to fail it.
+                    // Let's assume it's a one-shot attempt per day. If not completed, it's a failure for THIS contract type.
+                    // To avoid it clogging up, we'll remove it.
+                    deal.currentPhase = 'completed_remove'; // Treat as "done" (failed)
+                    return false; // Remove from active
+                }
+            });
+
+
+            // Priority 2: Storage Deal Departures
+            gameState.activeDeals.sort((a, b) => { // Re-sort, though cross-docks are filtered out
+                if (a.currentPhase === 'departing' && b.currentPhase !== 'departing') return -1;
+                if (b.currentPhase === 'departing' && a.currentPhase !== 'departing') return 1;
+                return 0;
+            });
+            
+            for (const deal of gameState.activeDeals) {
+                if (deal.dealType !== 'storage' || deal.currentPhase !== 'departing') continue;
+                let palletsToDepartThisDeal = Math.min(deal.palletsPerDayDeparture, deal.palletsInStorage);
+                
+                const canDepart = Math.min(palletsToDepartThisDeal, remainingDailyCapacity);
+                if (canDepart > 0) {
+                    deal.palletsInStorage -= canDepart;
+                    deal.palletsDepartedSoFar += canDepart;
+                    gameState.currentWarehouseUsage -= canDepart;
+                    remainingDailyCapacity -= canDepart;
+                    gameState.throughputUsedToday += canDepart;
+                    if(palletsToDepartThisDeal > 0) logMessage(`Departed ${canDepart} pallets for ${deal.clientName} (Storage).`, 'event-minor');
+                }
+                if (canDepart < palletsToDepartThisDeal && !deal.penaltyAppliedThisDay) {
+                    dailyOverloadPenaltyAppliedOverall = true; deal.penaltyAppliedThisDay = true;
+                }
+            }
+
+            // Priority 3: Storage Deal Arrivals
+             for (const deal of gameState.activeDeals) {
+                if (deal.dealType !== 'storage' || deal.currentPhase !== 'arriving') continue;
+                let palletsToArriveThisDeal = Math.min(deal.palletsPerDayArrival, deal.totalPalletsInDeal - deal.palletsArrivedSoFar);
+
+                const spaceAvailable = gameState.warehouseCapacity - gameState.currentWarehouseUsage;
+                let canArrive = Math.min(palletsToArriveThisDeal, remainingDailyCapacity, spaceAvailable);
+                
+                if (canArrive > 0) {
+                    deal.palletsArrivedSoFar += canArrive;
+                    gameState.currentWarehouseUsage += canArrive; 
+                    remainingDailyCapacity -= canArrive;
+                    gameState.throughputUsedToday += canArrive;
+                    if(palletsToArriveThisDeal > 0) logMessage(`Arrived ${canArrive} pallets for ${deal.clientName} (Storage).`, 'event-minor');
+                }
+                if (canArrive < palletsToArriveThisDeal && !deal.penaltyAppliedThisDay) {
+                    dailyOverloadPenaltyAppliedOverall = true; deal.penaltyAppliedThisDay = true;
+                     if (remainingDailyCapacity <= 0 && spaceAvailable > 0) logMessage(`Not enough throughput for full arrival of ${deal.clientName}'s storage.`, 'warning');
+                     else if (spaceAvailable <= 0 && remainingDailyCapacity > 0) logMessage(`Not enough warehouse space for full arrival of ${deal.clientName}'s storage.`, 'warning');
+                     else if (spaceAvailable <= 0 && remainingDailyCapacity <= 0) logMessage(`Not enough space OR throughput for full arrival of ${deal.clientName}'s storage.`, 'warning');
+                     else logMessage(`Partial storage arrival for ${deal.clientName} due to combined limits.`, 'warning');
+                }
+            }
+
+            // Phase Updates & Penalties for Storage Deals
+            let unhandledStoragePalletsToday = 0;
+            gameState.activeDeals = gameState.activeDeals.filter(deal => {
+                if (deal.currentPhase === 'completed_remove' || deal.dealType === 'cross_docking') return false; // Remove completed or already handled cross-docks
+                
+                deal.daysInCurrentPhase++;
+                if (deal.currentPhase === 'arriving' && deal.palletsArrivedSoFar >= deal.totalPalletsInDeal) {
+                    deal.currentPhase = 'storing'; deal.daysInCurrentPhase = 0;
+                    deal.palletsInStorage = deal.palletsArrivedSoFar; // Ensure this is set
+                    logMessage(`All ${deal.totalPalletsInDeal} pallets for ${deal.clientName} now in storage.`, 'event');
+                } else if (deal.currentPhase === 'storing' && deal.daysInCurrentPhase >= deal.storageDurationDays) {
+                    deal.currentPhase = 'departing'; deal.daysInCurrentPhase = 0;
+                    logMessage(`Storage ended for ${deal.clientName}. Goods scheduled for departure.`, 'event');
+                } else if (deal.currentPhase === 'departing' && deal.palletsDepartedSoFar >= deal.totalPalletsInDeal) {
+                    gameState.money += deal.reward;
+                    gameState.dailyIncome += deal.reward;
+                    gameState.dealsToday.completedStorage++;
+                    logMessage(`Storage Deal for ${deal.clientName} (${deal.totalPalletsInDeal} pallets) COMPLETED! Earned $${deal.reward.toLocaleString()}.`, 'success');
+                    deal.currentPhase = 'completed_remove'; // Mark for removal
+                    return false; 
+                }
+                // Calculate unhandled for *this specific storage deal* if penaltyAppliedThisDay
+                if (deal.penaltyAppliedThisDay) {
+                    if (deal.currentPhase === 'arriving') {
+                        unhandledStoragePalletsToday += (deal.palletsPerDayArrival - (deal.palletsArrivedSoFar % deal.palletsPerDayArrival === 0 ? deal.palletsPerDayArrival : deal.palletsArrivedSoFar % deal.palletsPerDayArrival ) ); // approx
+                    } else if (deal.currentPhase === 'departing') {
+                         unhandledStoragePalletsToday += (deal.palletsPerDayDeparture - (deal.palletsDepartedSoFar % deal.palletsPerDayDeparture === 0 ? deal.palletsPerDayDeparture : deal.palletsDepartedSoFar % deal.palletsPerDayDeparture)); // approx
+                    }
+                }
+                return true;
+            });
+            
+            if (dailyOverloadPenaltyAppliedOverall && unhandledStoragePalletsToday > 0) {
+                const penaltyAmount = Math.max(20, unhandledStoragePalletsToday * PENALTY_PER_UNHANDLED_PALLET_DAY);
+                gameState.money -= penaltyAmount;
+                gameState.dailyExpenses += penaltyAmount;
+                gameState.reputation -= REPUTATION_HIT_FOR_DAILY_OVERLOAD;
+                logMessage(`Storage ops overloaded! ${unhandledStoragePalletsToday} pallet movements failed. Penalty: $${penaltyAmount.toLocaleString()}. Rep -${REPUTATION_HIT_FOR_DAILY_OVERLOAD}.`, 'error');
+                if (gameState.reputation < 0) gameState.reputation = 0;
+            }
+            
+            gameState.lastDayIncome = gameState.dailyIncome;
+            gameState.lastDayExpenses = gameState.dailyExpenses;
+            gameState.lastDayProfitLoss = gameState.dailyIncome - gameState.dailyExpenses;
+            logMessage(`Day ${gameState.day-1} Summary: Income: $${gameState.lastDayIncome.toLocaleString()}, Expenses: $${gameState.lastDayExpenses.toLocaleString()}, P/L: $${gameState.lastDayProfitLoss.toLocaleString()}. Deals: ${gameState.dealsToday.completedStorage} Storage, ${gameState.dealsToday.completedCrossDock} Cross-Dock.`, 'summary');
+            
+            // Add to historical financials
+            gameState.historicalFinancials.unshift({ day: gameState.day -1, income: gameState.lastDayIncome, expenses: gameState.lastDayExpenses, profitLoss: gameState.lastDayProfitLoss });
+            if (gameState.historicalFinancials.length > HISTORICAL_FINANCIAL_DAYS) {
+                gameState.historicalFinancials.pop();
+            }
+
+            generateNewDeals();
+            updateUI();
+
+            if (gameState.money < 0 && gameState.day > 1) gameOver("You've run out of money!");
+            else if (gameState.reputation <= 0 && gameState.day > 1) gameOver("Your reputation is ruined!");
+        }
+        
+        function gameOver(reason) {
+            logMessage(`GAME OVER: ${reason}`, "critical");
+            showCustomModal("Game Over!", reason + "<br><br>Start a new game?", async () => { await resetGameData(); }, false, "Start New Game");
+            nextDayBtn.disabled = true;
+        }
+
+        function updateUI() {
+            moneyDisplay.textContent = `$${gameState.money.toLocaleString()}`;
+            dayDisplay.textContent = gameState.day;
+            reputationDisplay.textContent = gameState.reputation;
+            warehouseSpaceDisplay.textContent = `${gameState.currentWarehouseUsage} / ${gameState.warehouseCapacity} Pallets`;
+            
+            throughputDisplay.textContent = `${gameState.dailyThroughputCapacity} Pallets/Day`;
+            rampsStatDisplay.textContent = gameState.numberOfRamps;
+            staffStatDisplay.textContent = gameState.staffCount;
+            throughputUsedTodayDisplay.textContent = `${gameState.throughputUsedToday} / ${gameState.dailyThroughputCapacity}`;
+            
+            lastDayPlDisplay.textContent = `$${gameState.lastDayProfitLoss.toLocaleString()}`;
+            lastDayIncomeDisplay.textContent = gameState.lastDayIncome.toLocaleString();
+            lastDayExpensesDisplay.textContent = gameState.lastDayExpenses.toLocaleString();
+            
+            // Update upgrade section descriptions and costs
+            rampCapacityInfoDisplay.textContent = RAMP_CAPACITY_PER_DAY;
+            rampsCountDisplay.textContent = gameState.numberOfRamps;
+            rampCostDisplay.textContent = RAMP_COST.toLocaleString();
+            buyRampBtn.disabled = gameState.money < RAMP_COST;
+            buyRampBtn.classList.toggle('btn-disabled', gameState.money < RAMP_COST);
+
+            staffCapacityInfoDisplay.textContent = STAFF_CAPACITY_PER_DAY;
+            staffCountDisplay.textContent = gameState.staffCount;
+            staffHireCostDisplay.textContent = STAFF_HIRE_COST.toLocaleString();
+            staffWageInfoDisplay.textContent = STAFF_DAILY_WAGE.toLocaleString();
+            hireStaffBtn.disabled = gameState.money < STAFF_HIRE_COST;
+            hireStaffBtn.classList.toggle('btn-disabled', gameState.money < STAFF_HIRE_COST);
+
+            const currentExpandCost = getCurrentExpansionCost();
+            warehouseExpansionIncrementInfoDisplay.textContent = WAREHOUSE_EXPANSION_INCREMENT;
+            capacityUpgradeLevelDisplay.textContent = gameState.warehouseExpansionLevel;
+            expandCostDisplay.textContent = currentExpandCost.toLocaleString();
+            expandWarehouseBtn.disabled = gameState.money < currentExpandCost;
+            expandWarehouseBtn.classList.toggle('btn-disabled', gameState.money < currentExpandCost);
+
+            forkliftThroughputBonusInfoDisplay.textContent = FORKLIFT_THROUGHPUT_BONUS;
+            forkliftCountDisplay.textContent = gameState.ownedEquipment.forklifts;
+            forkliftCostDisplay.textContent = EQUIPMENT_COSTS.forklift.toLocaleString();
+            buyForkliftBtn.disabled = gameState.money < EQUIPMENT_COSTS.forklift;
+            buyForkliftBtn.classList.toggle('btn-disabled', gameState.money < EQUIPMENT_COSTS.forklift);
+
+            renderAvailableDeals();
+            renderActiveDeals();
+            renderMessageLog();
+        }
+
+        function renderAvailableDeals() {
+            availableDealsContainer.innerHTML = '';
+            if (!gameState.availableDeals || gameState.availableDeals.length === 0) {
+                noDealsMessage.classList.remove('hidden');
+            } else {
+                noDealsMessage.classList.add('hidden');
+                gameState.availableDeals.forEach(deal => {
+                    const dealEl = document.createElement('div');
+                    dealEl.className = 'deal-card';
+                    let dealSpecificsHTML = '';
+                    if (deal.dealType === 'storage') {
+                        dealSpecificsHTML = `
+                            <p class="text-xs text-gray-600">Arrival: ${deal.palletsPerDayArrival}/day for ${deal.arrivalDurationDays} days</p>
+                            <p class="text-xs text-gray-600">Storage: ${deal.storageDurationDays} days</p>
+                            <p class="text-xs text-gray-600">Departure: ${deal.palletsPerDayDeparture}/day for ${deal.departureDurationDays} days</p>
+                        `;
+                    } else if (deal.dealType === 'cross_docking') {
+                        dealSpecificsHTML = `
+                            <p class="text-xs text-indigo-600 font-semibold">Type: Cross-Docking (Quick Turnaround)</p>
+                            <p class="text-xs text-gray-600">Handle: ${deal.totalPalletsInDeal} pallets today</p>
+                        `;
+                    }
+                    dealEl.innerHTML = `
+                        <div>
+                            <h3 class="text-lg font-semibold ${deal.dealType === 'cross_docking' ? 'text-indigo-700' : 'text-blue-600'}">${deal.clientName} - ${deal.goodsType}</h3>
+                            <p class="text-sm text-gray-700">Total Pallets: <span class="font-medium">${deal.totalPalletsInDeal}</span></p>
+                            ${dealSpecificsHTML}
+                            <p class="text-sm font-medium text-green-500 mt-1">Total Reward: $${deal.reward.toLocaleString()}</p>
+                        </div>
+                        <button data-deal-id="${deal.id}" class="mt-3 btn ${deal.dealType === 'cross_docking' ? 'btn-warning' : 'btn-secondary'} w-full accept-deal-btn">Accept Deal</button>
+                    `;
+                    availableDealsContainer.appendChild(dealEl);
+                });
+            }
+            document.querySelectorAll('.accept-deal-btn').forEach(button => {
+                button.addEventListener('click', (e) => acceptDeal(e.target.dataset.dealId));
+            });
+        }
+
+        function renderActiveDeals() {
+            activeDealsContainer.innerHTML = '';
+            const active = gameState.activeDeals.filter(d => d.currentPhase !== 'completed_remove');
+            if (active.length === 0) {
+                noActiveDealsMessage.classList.remove('hidden');
+            } else {
+                noActiveDealsMessage.classList.add('hidden');
+                active.forEach(deal => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'p-4 bg-gray-50 rounded-lg shadow border border-gray-200';
+                    let phaseText = deal.currentPhase.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    let progressText = ""; let progressPercent = 0;
+
+                    if (deal.dealType === 'storage') {
+                        switch(deal.currentPhase) {
+                            case 'Arriving':
+                                progressText = `Arrived: ${deal.palletsArrivedSoFar}/${deal.totalPalletsInDeal}. Day ${deal.daysInCurrentPhase}/${deal.arrivalDurationDays}.`;
+                                progressPercent = (deal.palletsArrivedSoFar / deal.totalPalletsInDeal) * 33;
+                                break;
+                            case 'Storing':
+                                progressText = `${deal.palletsInStorage} pallets in storage. Day ${deal.daysInCurrentPhase}/${deal.storageDurationDays}.`;
+                                progressPercent = 33 + (deal.daysInCurrentPhase / deal.storageDurationDays) * 34;
+                                break;
+                            case 'Departing':
+                                progressText = `Departed: ${deal.palletsDepartedSoFar}/${deal.totalPalletsInDeal}. In storage: ${deal.palletsInStorage}. Day ${deal.daysInCurrentPhase}/${deal.departureDurationDays}.`;
+                                progressPercent = 67 + (deal.palletsDepartedSoFar / deal.totalPalletsInDeal) * 33;
+                                break;
+                        }
+                    } else if (deal.dealType === 'cross_docking') {
+                        phaseText = "Cross-Docking Active";
+                        progressText = `Handling ${deal.totalPalletsInDeal} pallets today.`;
+                        progressPercent = 50; // Static for active cross-dock
+                    }
+                    progressPercent = Math.min(100, Math.max(0, progressPercent));
+
+                    itemEl.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-semibold ${deal.dealType === 'cross_docking' ? 'text-indigo-700' : 'text-gray-800'}">${deal.clientName} - ${deal.goodsType} (${deal.totalPalletsInDeal} pallets)</h4>
+                            <span class="text-sm font-medium ${deal.currentPhase === 'Storing' ? 'text-purple-600' : (deal.currentPhase === 'Departing' ? 'text-orange-600' : (deal.dealType === 'cross_docking' ? 'text-indigo-600' : 'text-blue-600'))} px-2 py-1 rounded-full bg-gray-200 text-xs">${phaseText}</span>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-1">${progressText}</p>
+                        ${deal.dealType === 'storage' ? `<div class="w-full bg-gray-200 rounded-full h-2.5 mt-1"><div class="bg-green-500 h-2.5 rounded-full" style="width: ${progressPercent}%"></div></div>` : ''}
+                        <p class="text-xs text-gray-500 mt-1">Accepted: Day ${deal.dayAccepted}. Est. Reward: $${deal.reward.toLocaleString()}</p>
+                        ${deal.penaltyAppliedThisDay ? '<p class="text-xs text-red-500 font-semibold mt-1">Handling issues today!</p>' : ''}
+                    `;
+                    activeDealsContainer.appendChild(itemEl);
+                });
+            }
+        }
+        
+        function logMessage(message, type = "info") {
+            gameState.messageLog.unshift({ text: message, type: type, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) });
+            if (gameState.messageLog.length > MAX_LOG_MESSAGES) gameState.messageLog.pop();
+            renderMessageLog();
+        }
+
+        function renderMessageLog() {
+            messageLogContainer.innerHTML = gameState.messageLog.map(log => {
+                let colorClass = "text-gray-700";
+                switch(log.type) {
+                    case "success": colorClass = "text-green-600"; break;
+                    case "warning": colorClass = "text-yellow-600"; break;
+                    case "error": colorClass = "text-red-600"; break;
+                    case "event": colorClass = "text-blue-600"; break;
+                    case "event-minor": colorClass = "text-sky-600"; break;
+                    case "critical": colorClass = "text-red-700 font-bold"; break;
+                    case "summary": colorClass = "text-purple-600 font-medium"; break;
+                    case "expense": colorClass = "text-orange-600"; break;
+                    case "system": colorClass = "text-gray-500 italic"; break;
+                }
+                return `<p class="${colorClass} leading-tight"><span class="text-gray-400 text-xs mr-1">[${log.time}]</span> ${log.text}</p>`;
+            }).join('');
+            messageLogContainer.scrollTop = 0;
+        }
+
+        function showCustomModal(title, messageHTML, onConfirm, showCancel = true, confirmText = "Confirm", cancelText = "Cancel", isLarge = false) {
+            modalTitle.textContent = title;
+            modalMessage.innerHTML = messageHTML;
+            
+            modalContent.classList.toggle('modal-content-lg', isLarge);
+            modalContent.classList.toggle('max-w-lg', !isLarge);
+
+
+            modalConfirmBtn.textContent = confirmText;
+            modalConfirmBtn.onclick = () => { hideCustomModal(); if (onConfirm) onConfirm(); };
+            
+            modalCancelBtn.classList.toggle('hidden', !showCancel);
+            if (showCancel) { modalCancelBtn.textContent = cancelText; modalCancelBtn.onclick = hideCustomModal; }
+            customModal.classList.remove('hidden');
+        }
+
+        function hideCustomModal() {
+            customModal.classList.add('hidden');
+             modalContent.classList.remove('modal-content-lg'); // Reset size class
+             modalContent.classList.add('max-w-lg');
+        }
+
+        function showFinancialReport() {
+            let reportHTML = `<div class="max-h-96 overflow-y-auto">
+                <h4 class="text-md font-semibold mb-2 text-gray-700">Last ${gameState.historicalFinancials.length} Days Financial Summary</h4>`;
+            if (gameState.historicalFinancials.length === 0) {
+                reportHTML += "<p class='text-sm text-gray-500'>No historical data yet. Play a few days!</p>";
+            } else {
+                reportHTML += `<table class="min-w-full divide-y divide-gray-200 text-sm table-striped">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left font-semibold text-gray-600">Day</th>
+                                        <th class="px-4 py-2 text-right font-semibold text-gray-600">Income</th>
+                                        <th class="px-4 py-2 text-right font-semibold text-gray-600">Expenses</th>
+                                        <th class="px-4 py-2 text-right font-semibold text-gray-600">P/L</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">`;
+                gameState.historicalFinancials.forEach(record => {
+                    const profitLossClass = record.profitLoss >= 0 ? 'text-green-600' : 'text-red-600';
+                    reportHTML += `<tr>
+                                    <td class="px-4 py-2">${record.day}</td>
+                                    <td class="px-4 py-2 text-right text-green-600">$${record.income.toLocaleString()}</td>
+                                    <td class="px-4 py-2 text-right text-red-600">$${record.expenses.toLocaleString()}</td>
+                                    <td class="px-4 py-2 text-right font-semibold ${profitLossClass}">$${record.profitLoss.toLocaleString()}</td>
+                                  </tr>`;
+                });
+                reportHTML += `</tbody></table>`;
+            }
+            reportHTML += `</div>`;
+            showCustomModal("Financial Report", reportHTML, null, false, "Close", "", true); // isLarge = true
+        }
+        
+        // --- Event Listeners ---
+        nextDayBtn.addEventListener('click', advanceDay);
+        saveGameBtn.addEventListener('click', saveGame);
+        resetGameBtn.addEventListener('click', resetGameData);
+        financialReportBtn.addEventListener('click', showFinancialReport);
+
+        buyRampBtn.addEventListener('click', buyRamp);
+        hireStaffBtn.addEventListener('click', hireStaff);
+        expandWarehouseBtn.addEventListener('click', expandWarehouse);
+        buyForkliftBtn.addEventListener('click', () => buyEquipment('forklift'));
+        
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !customModal.classList.contains('hidden')) hideCustomModal();
+        });
+    </script>
 </body>
 </html>
