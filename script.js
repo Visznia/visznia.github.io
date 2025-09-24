@@ -42,6 +42,7 @@
     }
 
     function startExam() {
+      return;
       mode = "exam";
       document.getElementById("menu").style.display = "none";
       document.getElementById("quiz").style.display = "block";
