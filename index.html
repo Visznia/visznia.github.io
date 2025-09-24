@@ -3,39 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Aplikacja do nauki</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f3f4f6;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      max-width: 500px;
-      width: 100%;
-      text-align: center;
-    }
-    button {
-      display: block;
-      margin: 8px auto;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      background: #2563eb;
-      color: white;
-      cursor: pointer;
-      width: 100%;
-    }
-    button:hover { background: #1e40af; }
-    .answer { background: #e5e7eb; color: black; }
-    .answer:hover { background: #d1d5db; }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
@@ -48,96 +16,6 @@
     <div id="result" style="display:none;"></div>
   </div>
 
-  <script>
-    const questions = [
-      {
-        question: "Który język działa w przeglądarce?",
-        answers: ["Python", "JavaScript", "C++"],
-        correct: "JavaScript"
-      },
-      {
-        question: "Co oznacza HTML?",
-        answers: [
-          "HyperText Markup Language",
-          "Home Tool Markup Language",
-          "Hyperlinks and Text Markup Language"
-        ],
-        correct: "HyperText Markup Language"
-      }
-    ];
-
-    let mode = null;
-    let currentQ = null;
-    let examQuestions = [];
-    let examIndex = 0;
-    let userAnswers = [];
-
-    function shuffle(array) {
-      return array.sort(() => Math.random() - 0.5);
-    }
-
-    function startLearn() {
-      mode = "learn";
-      document.getElementById("menu").style.display = "none";
-      document.getElementById("quiz").style.display = "block";
-      nextLearnQuestion();
-    }
-
-    function nextLearnQuestion() {
-      const q = questions[Math.floor(Math.random() * questions.length)];
-      currentQ = { ...q, answers: shuffle([...q.answers]) };
-      renderQuestion(currentQ, answer => nextLearnQuestion());
-    }
-
-    function startExam() {
-      mode = "exam";
-      document.getElementById("menu").style.display = "none";
-      document.getElementById("quiz").style.display = "block";
-      examQuestions = shuffle([...questions]).slice(0, 5); // np. 5 pytań
-      examIndex = 0;
-      userAnswers = [];
-      showExamQuestion();
-    }
-
-    function showExamQuestion() {
-      const q = examQuestions[examIndex];
-      renderQuestion(q, answer => {
-        userAnswers.push(answer);
-        if (examIndex + 1 < examQuestions.length) {
-          examIndex++;
-          showExamQuestion();
-        } else {
-          showResult();
-        }
-      });
-    }
-
-    function renderQuestion(q, callback) {
-      const quizDiv = document.getElementById("quiz");
-      quizDiv.innerHTML = `<h2>${q.question}</h2>`;
-      shuffle([...q.answers]).forEach(ans => {
-        const btn = document.createElement("button");
-        btn.className = "answer";
-        btn.textContent = ans;
-        btn.onclick = () => callback(ans);
-        quizDiv.appendChild(btn);
-      });
-    }
-
-    function showResult() {
-      document.getElementById("quiz").style.display = "none";
-      const resultDiv = document.getElementById("result");
-      resultDiv.style.display = "block";
-      let score = 0;
-      examQuestions.forEach((q, i) => {
-        if (q.correct === userAnswers[i]) score++;
-      });
-      const percent = Math.round((score / examQuestions.length) * 100);
-      resultDiv.innerHTML = `
-        <h2>Twój wynik: ${percent}%</h2>
-        <button onclick="location.reload()">Powrót</button>
-      `;
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
