@@ -14,6 +14,16 @@
         ],
         correct: "Chrysler PT Cruiser"
       }
+      {
+        question: "Jaka jest typowa wielkość barki rzecznej w Polsce",
+        answers: [
+          "300 ton",
+          "500 ton",
+          "1500 ton"
+        ],
+        correct: "500 ton"
+
+      }
     ];
 
     let mode = null;
