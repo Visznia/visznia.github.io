@@ -23,6 +23,24 @@
         ],
         correct: "500 ton"
 
+      },
+      {
+        question: "W Europie największy port rzeczny jako centrum logistyczne znajduje się w",
+        answers: [
+                    
+          "Rotterdamie",
+          "Duisburgu",
+          "Paryżu"
+        ],
+        correct: "Duisburgu"
+      },
+      {
+        question:"W Polsce udział transportu wodnego śródlądowego w obsłudze potrzeb przewozowych waha się w granicach",
+        answers:[
+        "1%",
+        "5%",
+        "10%"],
+        correct: "1%"
       }
     ];
 
