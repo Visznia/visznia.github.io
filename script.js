@@ -13,7 +13,7 @@
           "Chrysler PT Cruiser"
         ],
         correct: "Chrysler PT Cruiser"
-      }
+      },
       {
         question: "Jaka jest typowa wielkość barki rzecznej w Polsce",
         answers: [
