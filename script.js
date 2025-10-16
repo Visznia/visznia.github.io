@@ -1,20 +1,5 @@
  const questions = [
       {
-        question: "Kto ma wielki łeb?",
-        answers: ["Dawid Stryczek", "Matka Teresa", "Adam Małysz"],
-        correct: "Dawid Stryczek"
-      },
-      {
-        question: "Najlepszy samochód?",
-        answers: [
-          "Dacia Logan",
-          "BMW 320D",
-          "Audi A3",
-          "Chrysler PT Cruiser"
-        ],
-        correct: "Chrysler PT Cruiser"
-      },
-      {
         question: "Jaka jest typowa wielkość barki rzecznej w Polsce",
         answers: [
           "300 ton",
@@ -41,6 +26,14 @@
         "5%",
         "10%"],
         correct: "1%"
+      },
+      {
+        question:"Największym armatorem żeglugi śródlądowej w Polsce jest",
+        answers:[
+        "żegluga Bydgoska SA",
+        "P.P. Żegluga Szczecińska",
+        "Odratrans"],
+        correct: "Odratrans"
       }
     ];
 
