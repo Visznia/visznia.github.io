@@ -9,10 +9,12 @@
   <div class="container">
     <h1>Aplikacja do nauki</h1>
     <div id="menu">
-      <button onclick="startLearn()">Tryb nauki</button>
-      <button>Tryb egzaminu</button>
-      <a href="intent:#Intent;action=android.settings.SETTINGS;end">Open Settings</a>
+      <select id="select_category">
+      </select>
+      <button onclick="startLearn()">Start</button>
     </div>
+    <h1 id="counter" style="display: none;"> 0/0 </h1>
+    <h2 id="points">0</h2>
     <div id="quiz" style="display:none;"></div>
     <div id="result" style="display:none;"></div>
   </div>

@@ -27,6 +27,26 @@
       cursor: pointer;
       width: 100%;
     }
+    select {
+      display: block;
+      margin: 8px auto;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #f3f4f6;
+      cursor: pointer;
+      width: 100%;
+    }
+    option {
+      display: block;
+      margin: 8px auto;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #f3f4f6;
+      cursor: pointer;
+      width: 100%;
+    }
     button:hover { background: #1e40af; }
     .answer { background: #e5e7eb; color: black; }
     .answer:hover { background: #d1d5db; }
