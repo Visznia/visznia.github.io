@@ -1,22 +1,36 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
   <title>Aplikacja do nauki</title>
-  <link rel="stylesheet" href="styles.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 <body>
-  <div class="container">
+  <div class="container-fluid p-5 bg-dark text-center text-white">
     <h1>Aplikacja do nauki</h1>
-    <div id="menu">
-      <select id="select_category">
-      </select>
-      <button onclick="startLearn()">Start</button>
+  </div>
+  <div class="row mt-5 text-center">
+    <div class="col-lg-3"></div>
+
+    <div class="col-lg-6">
+      <div class="input-group" id="menu">
+        <select class="form-select ms-5" id="select_category"></select>
+        <button class="btn btn-primary me-5" onclick="startLearn()">Start</button>
+      </div>
+      <div id="quiz" class="card m-5 rounded" style="display:none;">
+        <div>
+          <div id="quiz-head" class="card-header"></div>
+          <h1 id="counter" style="display: none;"> 0/0 </h1>
+          <h2 id="points" style="display: none;">0</h2>
+          <div class="card-body">
+            <div id="quiz-body" class="list-group"></div>
+          </div>
+        </div>
+      </div>
     </div>
-    <h1 id="counter" style="display: none;"> 0/0 </h1>
-    <h2 id="points">0</h2>
-    <div id="quiz" style="display:none;"></div>
-    <div id="result" style="display:none;"></div>
+
+  <div class="col-lg-3"></div>
+  <div id="result" style="display:none;"></div>
   </div>
 
   <script src="script.js"></script>
